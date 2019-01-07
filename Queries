@@ -1,4 +1,5 @@
 1. Write a query that displays state and provides an average training cost for all employees from Utah.  Don’t include employees with the last name ‘Matsko’.  Limit the output to two decimal places
+
 SELECT CAST(AVG(TrainingCost) As decimal (8,2)) As 'Avg training cost', e.state
 FROM employee as e JOIN Employee_Training as et
 	ON e.EmployeeID = et.EmployeeID
@@ -7,7 +8,18 @@ FROM employee as e JOIN Employee_Training as et
 WHERE e.State = 'UT' AND e.lastname <> 'Matsko'
 GROUP BY e.state;
 
-2.Create a view called vSTATE that contains the full name of the employee along with the full spelling of the state using a CASE EXPRESSION. 
+2.Jake from training is creating an instructional gamewhere he needs to obtain a random number between 500 and 1000.  Only include whole numbers.  Write the code needed to create a VIEW and call the view vRandom.  For this answer, also include the code needed to run and drop the View.
+
+CREATE VIEW vrandom as 
+SELECT FORMAT(RAND() * 501 + 500, '0') as 'Random Number';
+
+SELECT *
+FROM vrandom;
+
+DROP VIEW vrandom;
+
+3. Create a view called vSTATE that contains the full name of the employee along with the full spelling of the state using a CASE EXPRESSION. 
+
 CREATE VIEW vSTATE as 
 SELECT CONCAT (FirstName, Lastname) as 'Name',
 	CASE State
@@ -18,7 +30,8 @@ SELECT CONCAT (FirstName, Lastname) as 'Name',
 	 End as 'State'
 FROM Employee;
 
-3. In the current product database, if the quality is 1, the actual quality is Very Good.  If the quality is 2, the actual quality is About Uncirculated.  Finally, if the quality is 3, the actual quality is Mint State.  Write an SQL view called vQuality that creates a new virtual column that includes actual quality descriptions.  Show the ProductID, ProductName, and New Column.
+4. In the current product database, if the quality is 1, the actual quality is Very Good.  If the quality is 2, the actual quality is About Uncirculated.  Finally, if the quality is 3, the actual quality is Mint State.  Write an SQL view called vQuality that creates a new virtual column that includes actual quality descriptions.  Show the ProductID, ProductName, and New Column.
+
 CREATE VIEW vQuality as 
 SELECT ProductID, ProductName,
 	CASE QualityID
@@ -28,7 +41,57 @@ SELECT ProductID, ProductName,
 	 End as 'Actual Quality Description'
 FROM Product;
 
-4. Write an SQL query to show the day of the week each customer purchased a product.  Include an alias when needed.  Order by Last Name from A –Z.
+5. Students are complaining they don’t know if a course is considered beginner or advanced.  The trainer thought he was clear when she made the odd training ids beginner and even ids advanced.  Write a View called vCOURSE and include a Case Expression that solves this problem.  Show the Training Name, Training Description, and New Column.
+
+CREATE VIEW vCOURSE as 
+SELECT TrainingName, Trainingdescription,
+	CASE 
+	 WHEN (TRAININGID % 2) = 0 THEN 'advanced'
+	  WHEN (TRAININGID % 2) = 1 THEN 'Beginner'
+	 End as 'Course Level'
+FROM TRAINING_COURSE;
+
+6. Write a searched CASE Expression using the PRODUCT table that provides a new column that displays ‘High Quality’ if qualityID is > 1and ‘Not Sure’ for any other possibilities (ELSE statement).Show the ProductName and New column.
+
+SELECT ProductName,
+	CASE 
+	WHEN QualityID > 1 THEN 'High Quality'
+	ELSE 'Not Sure' 
+	END As 'Quality'
+FROM Product;
+
+7.Write a random number between 1000 and 25000.  Format so there are no decimals.
+
+SELECT ROUND(RAND() * 24001,0,1)+1000 as '1000 - 25000' ;
+
+8.Create two columns, one with a random number between 1 and 100, and another between 1/10 and 1.  Include any aliases when needed.  Limit the output to 2 decimal places.
+
+SELECT ROUND(RAND() * 100,2,1)+1 as '1-100', ROUND (RAND()*.91,2,1)+.1  as '.1-1';
+
+9. Create a random number for each customer.  Don’t create a range of numbers, but the largest random numbers possible.  Add appropriate commas to make the numbers easier to read
+
+SELECT CustomerID,
+	FORMAT(ABS(checksum((newid()))),'###,###') as 'Random number'
+FROM CUSTOMER;
+
+10. Create a random number for each employee between 1 and 1000 along with the employees’last name. Add appropriate commas to make the numbers easier to read.
+
+Select LastName,
+	ABS(Checksum((NewId()))%1000)+1 As 'RandomNumber'
+From EMPLOYEE;
+
+11. How many Years have passed since the Magna Carta was signed?  Don’t hardwire today’s date.  Use an Aliases when appropriate.
+
+SELECT DATEDIFF(Year, '12150615', GETDATE()) AS 'Years since magna carta'
+
+12. Write an SQL query to show last name and a year date (one year past the date the employee was part of a sale). Only include the year,not other date/time components.This problem requires a 2 Table JOIN, the YEAR function, and the DATEADD function.
+
+SELECT e.LastName, YEAR(DATEADD(year,1,(s.SaleDate)))as '1 year past sale year'
+FROM Employee as e JOIN SALE as s 
+	ON e.employeeid = s.employeeid;
+
+13. Write an SQL query to show the day of the week each customer purchased a product.  Include an alias when needed.  Order by Last Name from A –Z.
+
 SELECT Lastname, DATENAME(dw, saledate) As 'day of the week of Purchase' 
  FROM Sale as s join Customer as c 
   ON s.CustomerID = c.customerID
